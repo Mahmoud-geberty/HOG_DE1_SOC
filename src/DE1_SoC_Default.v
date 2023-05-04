@@ -126,18 +126,6 @@ module DE1_SoC_Default(
 //  Structural coding
 //=======================================================
 
-wire           pixel_ready; /*synthesis keep*/ 
-wire [14:0]    window_ready; /*synthesis keep*/ 
-wire [14:0]    window_valid; /*synthesis keep*/ 
-wire [17279:0] detection_window; /*synthesis keep*/ 
-
-wire led2, design_running; 
-
-
-assign led2 = (window_valid || detection_window);
-assign design_running = 1'b1; 
-
-assign LEDR = {7'b0, design_running, led2, pixel_ready};
 
 PLL_IP u_PLL_IP(
     .refclk   ( CLOCK_50   ),
@@ -147,23 +135,100 @@ PLL_IP u_PLL_IP(
     .locked   ( locked   )
 );
 
+localparam DATA_WIDTH = 8;
+localparam IMAGE_WIDTH = 640; 
+localparam IMAGE_HEIGHT = 480; 
+localparam WINDOW_WIDTH = 1152; 
+localparam BUS_WIDTH    = 128; 
+localparam SCALE        = 9; 
+localparam LEVELS       = 15; // depends on SCALE
+localparam HOG_WIDTH    = WINDOW_WIDTH * LEVELS; 
+
+localparam [LEVELS*4 - 1: 0] METADATA = {
+    4'd0, 4'd1, 4'd2, 4'd3, 4'd4, 
+    4'd5, 4'd6, 4'd7, 4'd8, 4'd9, 
+    4'd10, 4'd11, 4'd12, 4'd13, 4'd14, 4'd15
+}; 
+
+wire rst; 
+wire [LEVELS-1:0] window_valid;
+wire [LEVELS-1:0] window_ready; 
+wire [LEVELS-1:0] window_fast_valid;
+wire [LEVELS-1:0] window_fast_ready; 
+wire [HOG_WIDTH-1:0] all_windows; 
+wire [WINDOW_WIDTH-1:0] window_slow [0:LEVELS-1]; 
+wire [WINDOW_WIDTH-1:0] window_fast [0:LEVELS-1]; 
+wire [BUS_WIDTH-1:0] stream [0:LEVELS-1]; 
+wire [LEVELS-1:0] stream_valid[i]; 
+wire [LEVELS-1:0] stream_ready[i]; 
+
+integer j; 
+for (j = 0; j < LEVELS; j = j + 1) begin 
+    assign window_slow[i] = all_windows[i*WINDOW_WIDTH +: WINDOW_WIDTH]; 
+end
+
+assign rst = ~KEY[0];
 
 top#(
-    .DATA_WIDTH       ( 8 ),
-    .IMAGE_WIDTH      ( 640 ),
-    .IMAGE_HEIGHT     ( 480 ),
-    .WINDOW_WIDTH     ( 32 * 36 ),
-    .SCALE            ( 9 )
+    .DATA_WIDTH       ( DATA_WIDTH ),
+    .IMAGE_WIDTH      ( IMAGE_WIDTH ),
+    .IMAGE_HEIGHT     ( IMAGE_HEIGHT ),
+    .WINDOW_WIDTH     ( WINDOW_WIDTH ),
+    .SCALE            ( SCALE )
 ) hog_top (
     .clk              ( clk_10           ),
-    .rst              ( ~KEY[0]          ),
+    .rst              ( rst              ),
     // use the switches for now
     .pixel_in         ( SW[7:0]          ),
     .pixel_valid      ( KEY[1]           ),
     .window_ready     ( window_ready     ),
     .pixel_ready      ( pixel_ready      ),
-    .detection_window ( detection_window ),
+    .detection_window ( all_windows      ),
     .window_valid     ( window_valid     )
 );
+
+genvar i; 
+
+generate 
+    for (i = 0; i < LEVELS; i = i + 1) begin: HOG_SERIALIZER 
+        async_fifo (
+            .DSIZE  ( WINDOW_WIDTH ),
+            .ASIZE  ( 3 ), // upto 8 windows
+            .FALLTHROUGH ( "TRUE" )
+        )u_async_fifo(
+            .wclk   ( clk_10 ),
+            .wrst_n ( ~rst   ),
+            .winc   ( window_valid[i] ),
+            .wdata  ( window_slow[i]  ),
+            .wfull  ( ~window_ready[i]  ),
+            // .awfull ( awfull ),
+            .rclk   ( clk_140 ),
+            .rrst_n ( ~rst    ),
+            .rinc   ( window_fast_ready   ),
+            .rdata  ( window_fast[i]  ),
+            .rempty ( ~window_fast_valid[i] ),
+            .arempty  ( arempty  )
+        );
+
+        window_serializer#(
+            .WINDOW_WIDTH ( WINDOW_WIDTH ),
+            .BUS_WIDTH    ( BUS_WIDTH ),
+            .META_WIDTH   ( 4 )
+        )u_window_serializer(
+            .clk          ( clk                  ),
+            .rst          ( rst                  ),
+            .window_valid ( window_fast_valid[i] ),
+            .stream_ready ( stream_ready[i]      ),
+            .metadata     ( METADATA[i]          ),
+            .window       ( window_fast[i]       ),
+            .window_ready ( window_fast_ready[i] ),
+            .stream_valid ( stream_valid[i]      ),
+            .stream       ( stream[i]            )
+        );
+
+        // TODO: each stream goes into a bus master
+
+    end
+endgenerate
 
 endmodule

@@ -52,5 +52,5 @@ assign AUD_ADCLRCK	 =	AUD_DACLRCK;
 //	Enable TV Decoder
 assign	TD_RESET_N	=	KEY[0];
 
-// assign	LEDR      	=	10'b0//KEY[0]? {	Cont[25:24],Cont[25:24],Cont[25:24],Cont[25:24],Cont[25:24]	}:10'h3ff;
+assign	LEDR      	=	10'b0;//KEY[0]? {	Cont[25:24],Cont[25:24],Cont[25:24],Cont[25:24],Cont[25:24]	}:10'h3ff;
 assign	mSEG7_DIG	=	24'b0;//KEY[0]? {	Cont[27:24],Cont[27:24],Cont[27:24],Cont[27:24],Cont[27:24],Cont[27:24] } :{6{4'b1000}};
