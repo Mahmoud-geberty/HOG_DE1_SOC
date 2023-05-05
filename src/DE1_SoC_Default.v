@@ -152,20 +152,27 @@ localparam [LEVELS*4 - 1: 0] METADATA = {
 
 wire rst; 
 wire [LEVELS-1:0] window_valid;
-wire [LEVELS-1:0] window_ready; 
+wire [LEVELS-1:0] window_ready;
+wire [LEVELS-1:0] window_slow_ready; 
 wire [LEVELS-1:0] window_fast_valid;
+wire [LEVELS-1:0] window_fast_valid_n;
 wire [LEVELS-1:0] window_fast_ready; 
 wire [HOG_WIDTH-1:0] all_windows; 
 wire [WINDOW_WIDTH-1:0] window_slow [0:LEVELS-1]; 
 wire [WINDOW_WIDTH-1:0] window_fast [0:LEVELS-1]; 
 wire [BUS_WIDTH-1:0] stream [0:LEVELS-1]; 
-wire [LEVELS-1:0] stream_valid[i]; 
-wire [LEVELS-1:0] stream_ready[i]; 
+wire [LEVELS-1:0] stream_valid; 
+wire [LEVELS-1:0] stream_ready; 
 
-integer j; 
-for (j = 0; j < LEVELS; j = j + 1) begin 
-    assign window_slow[i] = all_windows[i*WINDOW_WIDTH +: WINDOW_WIDTH]; 
-end
+genvar j; 
+generate
+    for (j = 0; j < LEVELS; j = j + 1) begin : SLOW_WINDOW
+        assign window_slow[j] = all_windows[j*WINDOW_WIDTH +: WINDOW_WIDTH]; 
+    end
+endgenerate
+
+assign window_ready = ~window_slow_ready; 
+assign window_fast_valid = ~window_fast_valid_n;
 
 assign rst = ~KEY[0];
 
@@ -191,7 +198,7 @@ genvar i;
 
 generate 
     for (i = 0; i < LEVELS; i = i + 1) begin: HOG_SERIALIZER 
-        async_fifo (
+        async_fifo #(
             .DSIZE  ( WINDOW_WIDTH ),
             .ASIZE  ( 3 ), // upto 8 windows
             .FALLTHROUGH ( "TRUE" )
@@ -200,13 +207,13 @@ generate
             .wrst_n ( ~rst   ),
             .winc   ( window_valid[i] ),
             .wdata  ( window_slow[i]  ),
-            .wfull  ( ~window_ready[i]  ),
+            .wfull  ( window_ready[i]  ),
             // .awfull ( awfull ),
             .rclk   ( clk_140 ),
             .rrst_n ( ~rst    ),
             .rinc   ( window_fast_ready   ),
             .rdata  ( window_fast[i]  ),
-            .rempty ( ~window_fast_valid[i] ),
+            .rempty ( window_fast_valid_n[i] ),
             .arempty  ( arempty  )
         );
 
