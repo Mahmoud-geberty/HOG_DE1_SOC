@@ -1,7 +1,7 @@
 module window_serializer #(
     parameter WINDOW_WIDTH = 1152, 
     parameter BUS_WIDTH = 128, 
-    parameter META_WIDTH = 4 // for now only contains the pyramid level
+    parameter META_WIDTH = 3 // for now only contains the pyramid level
 ) (
     input                      clk, rst, 
     input                      window_valid, 
