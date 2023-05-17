@@ -12,7 +12,7 @@
 module DE1_SoC_Default(
 
       ///////// ADC /////////
-      output             ADC_CONVST,
+    //   output             ADC_CONVST,
       output             ADC_DIN,
       input              ADC_DOUT,
       output             ADC_SCLK,
@@ -146,10 +146,9 @@ localparam SCALE        = 4;
 localparam LEVELS       = 7; // depends on SCALE
 localparam HOG_WIDTH    = WINDOW_WIDTH * LEVELS; 
 
-localparam [LEVELS*4 - 1: 0] METADATA = {
+localparam [LEVELS*3 - 1: 0] METADATA = {
     4'd0, 4'd1, 4'd2, 4'd3, 4'd4, 
-    4'd5, 4'd6, 4'd7, 4'd8, 4'd9, 
-    4'd10, 4'd11, 4'd12, 4'd13, 4'd14, 4'd15
+    4'd5, 4'd6 
 }; 
 
 wire clk_10, clk_140;
@@ -240,13 +239,13 @@ generate
         window_serializer#(
             .WINDOW_WIDTH ( WINDOW_WIDTH ),
             .BUS_WIDTH    ( BUS_WIDTH ),
-            .META_WIDTH   ( 4 )
+            .META_WIDTH   ( 3 )
         )u_window_serializer(
             .clk          ( clk_140              ),
             .rst          ( rst                  ),
             .window_valid ( window_fast_valid[i] ),
             .stream_ready ( stream_ready[i]      ),
-            .metadata     ( METADATA[i]          ),
+            .metadata     ( METADATA[i*3 +: 3]   ),
             .window       ( window_fast[i]       ),
             .window_ready ( window_fast_ready[i] ),
             .stream_valid ( stream_valid[i]      ),
