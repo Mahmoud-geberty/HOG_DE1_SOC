@@ -146,7 +146,7 @@ module DE1_SoC_Default(
 	inout 		     [3:0]		HPS_FLASH_DATA,
 	output		          		HPS_FLASH_DCLK,
 	output		          		HPS_FLASH_NCSO,
-	inout 		     [1:0]		HPS_GPIO,
+	// inout 		     [1:0]		HPS_GPIO,
 	inout 		          		HPS_GSENSOR_INT,
 	inout 		          		HPS_I2C1_SCLK,
 	inout 		          		HPS_I2C1_SDAT,
