@@ -435,12 +435,12 @@ hps0 hps_block (
 		.bridge_0_byte_enable  ( byte_enable    ),  //          .byte_enable
 		.bridge_0_rw           ( r_wbar         ),  //          .rw
 		.bridge_0_write_data   ( write_data     ),  //          .write_data
-		.bridge_0_read_data    ( read_data      )   //          .read_data
+		.bridge_0_read_data    ( read_data      ),   //          .read_data
 
-		.hog_in_export         (),                   //      hog_in.export
-		.hog_out_export        (),                  //     hog_out.export
-		.switch_out_export     (),               //  switch_out.export
-		.input_pixel_export    ()               // input_pixel.export
+		.hog_in_export         ( hog_in_pio       ), //      hog_in.export
+		.hog_out_export        ( hog_out_pio      ), //     hog_out.export
+		.switch_out_export     ( switch_out_pio   ), //  switch_out.export
+		.input_pixel_export    ( input_pixels_pio )  // input_pixel.export
 
 	);
 

@@ -12,7 +12,7 @@ module sys_status #(
     parameter LEVELS = 7 
 ) (
     input clk, rst, 
-    input blinking_led,
+    output blinking_led,
     input hog_input_valid, hog_input_ready, 
     input [LEVELS-1:0] hog_out_valid, hog_out_ready, 
     input switch_out_valid, switch_out_ready,
