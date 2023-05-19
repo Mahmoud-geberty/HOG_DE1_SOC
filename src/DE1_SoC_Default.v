@@ -234,6 +234,12 @@ wire [BUS_WIDTH-1:0]  write_data;
 wire [BUS_BYTES-1:0]  byte_enable; 
 wire                  irq; 
 
+// pio status wires
+wire [31:0] hog_in_pio;
+wire [31:0] hog_out_pio; 
+wire [31:0] switch_out_pio; 
+wire [31:0] input_pixels_pio;
+
 genvar j; 
 generate
     for (j = 0; j < LEVELS; j = j + 1) begin : SLOW_WINDOW
@@ -314,11 +320,11 @@ bus_switch#(
 )u_bus_switch(
     .clk       ( clk       ),
     .rst       ( rst       ),
-    .in_valid  ( stream_valid  ),
+    .in_valid  ( stream_valid ),
     .out_ready ( switch_ready ),
     .in_stream ( stream_concat),
     .out_valid ( switch_valid ),
-    .in_ready  ( stream_ready  ),
+    .in_ready  ( stream_ready ),
     .out_stream  ( switch_stream  )
 );
 
@@ -341,6 +347,28 @@ ext_bus#(
     .irq          ( irq           )
 );
 
+sys_status#(
+    .CLOCK_FREQ (10_000_000),
+    .LEVELS     ( LEVELS )
+)u_sys_status( 
+    .clk                     ( clk                     ),
+    .rst                     ( rst                     ),
+    .blinking_led            ( LEDR[9]                 ),
+    .hog_input_valid         ( KEY[1]                  ),
+    .hog_input_ready         ( pixel_ready             ),
+    .hog_out_valid           ( window_valid            ),
+    .hog_out_ready           ( window_ready            ),
+    .switch_out_valid        ( switch_valid            ),
+    .switch_out_ready        ( switch_ready            ),
+    .input_pixels            ( SW[7:0]                 ),
+    .hog_in_pio              ( hog_in_pio              ),
+    .hog_out_pio             ( hog_out_pio             ),
+    .switch_out_pio          ( switch_out_pio          ),
+    .input_pixels_pio        ( input_pixels_pio        )
+);
+
+
+// TODO: double check what clock goes to the HPS
 hps0 hps_block (
 		.clk_clk               (clk_140),           //       clk.clk
 		.memory_mem_a          ( HPS_DDR3_ADDR ),   //    memory.mem_a
@@ -408,6 +436,12 @@ hps0 hps_block (
 		.bridge_0_rw           ( r_wbar         ),  //          .rw
 		.bridge_0_write_data   ( write_data     ),  //          .write_data
 		.bridge_0_read_data    ( read_data      )   //          .read_data
+
+		.hog_in_export         (),                   //      hog_in.export
+		.hog_out_export        (),                  //     hog_out.export
+		.switch_out_export     (),               //  switch_out.export
+		.input_pixel_export    ()               // input_pixel.export
+
 	);
 
 endmodule
