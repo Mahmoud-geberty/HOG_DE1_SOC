@@ -21,8 +21,7 @@ module sys_status #(
 ); 
 
 localparam BLINK_FREQ         = 1; // on and off in 1s
-localparam CLOCK_PERIOD       = 1/CLOCK_FREQ; 
-localparam BLINK_COUNTER_MAX  = CLOCK_PERIOD / BLINK_FREQ; 
+localparam BLINK_COUNTER_MAX  = CLOCK_FREQ / BLINK_FREQ; 
 localparam BLINK_COUNTER_SIZE = $clog2(BLINK_COUNTER_MAX); 
 
 reg [BLINK_COUNTER_SIZE-1:0] blink_counter;
@@ -35,6 +34,7 @@ assign input_pixels_pio = {{24{1'b0}}, input_pixels};
 
 always @(posedge clk, posedge rst) begin 
     if (rst) begin 
+        blink_counter <= 'd0; 
     end
     else if (blink_counter == BLINK_COUNTER_MAX-1) begin 
         blink_counter <= 'd0;
