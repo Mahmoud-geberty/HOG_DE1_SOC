@@ -227,7 +227,7 @@ hog_de1_wrapper#(
     .input_pixel    ( SW[7:0]        ),
     .pixel_valid    ( KEY[1]         ),
     .pixel_ready    ( pixel_ready    ),
-    .blinking_led   ( blinking_led   ),
+    .blinking_led   ( LEDR[9]        ),
     .addr           ( addr           ),
     .ack            ( ack            ),
     .bus_enable     ( bus_enable     ),
