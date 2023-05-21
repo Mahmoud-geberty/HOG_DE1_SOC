@@ -197,7 +197,8 @@ localparam BUS_BYTES  = BUS_WIDTH/8;
 wire clk_10, clk_140;
 wire rst; 
 
-assign rst = ~KEY[0];
+// stay in a reset state until the PLL locks
+assign rst = ~KEY[0] || ~locked;
 
 wire [ADDR_WIDTH-1:0] addr;
 wire                  ack;
