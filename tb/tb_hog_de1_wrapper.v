@@ -88,9 +88,9 @@ initial begin
         rst = 0; 
         input_pixel = $random; 
         write_data  = $random; 
-        bus_enable = 1; 
-        r_wbar     = 1; 
-        byte_enable = -1;  
+        // bus_enable = 1; 
+        // r_wbar     = 1; 
+        // byte_enable = -1;  
     end
     $stop;
 end
