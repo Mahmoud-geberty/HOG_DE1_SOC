@@ -85,6 +85,10 @@ always @(*) begin
         grant_demux[6] = 1'b1;
         out_stream_buf = in_stream[6*BUS_WIDTH +: BUS_WIDTH]; 
     end
+    default: begin 
+        grant_demux = 'd0; 
+        out_stream_buf = 'd0; 
+    end
     endcase
 end
 

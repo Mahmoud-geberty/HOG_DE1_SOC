@@ -181,39 +181,55 @@ module DE1_SoC_Default(
 //=======================================================
 
 
-PLL_IP u_PLL_IP(
-    .refclk   ( CLOCK_50   ),
-    .rst      ( rst      ),
-    .outclk_0 ( clk_140 ),
-    .outclk_1 ( clk_10 ),
-    .locked   ( locked   )
-);
 
 localparam DATA_WIDTH = 8;
 localparam ADDR_WIDTH = 5;
-localparam BUS_WIDTH  = 128;
+localparam BUS_WIDTH  = 32;
 localparam BUS_BYTES  = BUS_WIDTH/8;
 
 wire clk_10, clk_140;
-wire rst; 
+wire rst_async, rst_10, rst_140; 
+wire locked; 
 
-assign rst = ~KEY[0];
+//TODO: synchronize and debounce KEY[0]
+assign rst_async = ~KEY[0] || ~locked;
 
 wire [ADDR_WIDTH-1:0] addr;
 wire                  ack;
 wire                  bus_enable;
 wire                  r_wbar;
-wire [BUS_WIDTH-1:0]  read_dat;
+wire [BUS_WIDTH-1:0]  read_data;
 wire [BUS_WIDTH-1:0]  write_data;
 wire [BUS_BYTES-1:0]  byte_enable;
 wire                  irq;
 
 // pio status wires
-wire [31:0] hog_in_pi;
+wire [31:0] hog_in_pio;
 wire [31:0] hog_out_pio;
 wire [31:0] switch_out_pio;
 wire [31:0] input_pixels_pio;
 
+wire pixel_ready; 
+
+PLL_IP u_PLL_IP(
+    .refclk   ( CLOCK_50   ),
+    .rst      ( rst_async  ),
+    .outclk_0 ( clk_140 ),
+    .outclk_1 ( clk_10 ),
+    .locked   ( locked   )
+);
+
+sync_async_reset reset_sync_10 (
+    .clk       ( clk_10    ),
+    .rst_async ( rst_async ),
+    .rst_sync  ( rst_10    )
+); 
+
+sync_async_reset reset_sync_140 (
+    .clk       ( clk_140   ),
+    .rst_async ( rst_async ),
+    .rst_sync  ( rst_140   )
+); 
 
 hog_de1_wrapper#(
     .DATA_WIDTH     ( DATA_WIDTH ),
@@ -223,7 +239,7 @@ hog_de1_wrapper#(
 )u_hog_de1_wrapper(
     .clk_slow       ( clk_10         ),
     .clk_fast       ( clk_140        ),
-    .rst            ( rst            ),
+    .rst            ( rst_10         ),
     .input_pixel    ( SW[7:0]        ),
     .pixel_valid    ( KEY[1]         ),
     .pixel_ready    ( pixel_ready    ),
@@ -263,7 +279,7 @@ hps0 hps_block (
 		.memory_mem_dm         ( HPS_DDR3_DM ),     //          .mem_dm
 		.memory_oct_rzqin      ( HPS_DDR3_RZQ ),    //          .oct_rzqin
 
-		.reset_reset_n         (~rst            ),  //     reset.reset_n
+		.reset_reset_n         (~rst_140        ),  //     reset.reset_n
 
 		.hps_io_hps_io_emac1_inst_TX_CLK ( HPS_ENET_GTX_CLK ),      //   hps_io.hps_io_emac1_inst_TX_CLK
 		.hps_io_hps_io_emac1_inst_TXD0   ( HPS_ENET_TX_DATA[0] ),   //         .hps_io_emac1_inst_TXD0

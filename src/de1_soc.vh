@@ -43,8 +43,8 @@ assign FPGA_I2C_SDAT		= 1'bz;
 assign FPGA_I2C_SCLK		= 1'bz; 
 
 
-assign GPIO_A  		=	36'hzzzzzzzz;
-assign GPIO_B  		=	36'hzzzzzzzz;
+// assign GPIO_A  		=	36'hzzzzzzzz;
+// assign GPIO_B  		=	36'hzzzzzzzz;
 
 assign AUD_XCK	       =	AUD_CTRL_CLK;
 assign AUD_ADCLRCK	 =	AUD_DACLRCK;
@@ -52,5 +52,5 @@ assign AUD_ADCLRCK	 =	AUD_DACLRCK;
 //	Enable TV Decoder
 assign	TD_RESET_N	=	KEY[0];
 
-assign	LEDR[8:0]      	= 9'b0;//KEY[0]? {	Cont[25:24],Cont[25:24],Cont[25:24],Cont[25:24],Cont[25:24]	}:10'h3ff;
-assign	mSEG7_DIG	=	24'b0;//KEY[0]? {	Cont[27:24],Cont[27:24],Cont[27:24],Cont[27:24],Cont[27:24],Cont[27:24] } :{6{4'b1000}};
+// assign	LEDR[8:0]      	= 9'b0;//KEY[0]? {	Cont[25:24],Cont[25:24],Cont[25:24],Cont[25:24],Cont[25:24]	}:10'h3ff;
+// assign	mSEG7_DIG	=	24'b0;//KEY[0]? {	Cont[27:24],Cont[27:24],Cont[27:24],Cont[27:24],Cont[27:24],Cont[27:24] } :{6{4'b1000}};

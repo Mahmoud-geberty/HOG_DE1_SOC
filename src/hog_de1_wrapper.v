@@ -2,7 +2,7 @@
 module hog_de1_wrapper #(
     parameter DATA_WIDTH = 8,
     parameter ADDR_WIDTH = 5,
-    parameter BUS_WIDTH    = 128,
+    parameter BUS_WIDTH    = 32,
     parameter BUS_BYTES    = BUS_WIDTH/8
 ) (
     input clk_slow, clk_fast, rst,
@@ -61,6 +61,7 @@ wire [BUS_WIDTH-1:0] switch_stream; // the output of the switch
 wire                 switch_valid; 
 wire                 switch_ready; 
 
+wire arempty; // suppress implicit net warning
 
 genvar j; 
 generate
