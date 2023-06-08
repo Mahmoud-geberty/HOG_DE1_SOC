@@ -13,6 +13,7 @@ module sys_status #(
 ) (
     input clk, rst, 
     output blinking_led,
+    output backpressure_led,
     input hog_input_valid, hog_input_ready, 
     input [LEVELS-1:0] hog_out_valid, hog_out_ready, 
     input switch_out_valid, switch_out_ready,
@@ -31,6 +32,8 @@ assign hog_in_pio       = {{30{1'b0}}, hog_input_valid, hog_input_ready};
 assign hog_out_pio      = {{(32 - LEVELS*2){1'b0}}, hog_out_valid, hog_out_ready}; 
 assign switch_out_pio   = {{30{1'b0}}, switch_out_valid, switch_out_ready}; 
 assign input_pixels_pio = {{24{1'b0}}, input_pixels}; 
+
+assign backpressure_led = ~hog_input_ready; 
 
 always @(posedge clk, posedge rst) begin 
     if (rst) begin 

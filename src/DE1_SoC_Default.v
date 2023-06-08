@@ -244,6 +244,7 @@ hog_de1_wrapper#(
     .pixel_valid    ( KEY[1]         ),
     .pixel_ready    ( pixel_ready    ),
     .blinking_led   ( LEDR[9]        ),
+	.backpressure_led (LEDR[8]       ),
     .addr           ( addr           ),
     .ack            ( ack            ),
     .bus_enable     ( bus_enable     ),
