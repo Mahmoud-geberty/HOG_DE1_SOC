@@ -244,7 +244,7 @@ hog_de1_wrapper#(
     .pixel_valid    ( KEY[1]         ),
     .pixel_ready    ( pixel_ready    ),
     .blinking_led   ( LEDR[9]        ),
-	.backpressure_led (LEDR[8]       ),
+	// .backpressure_led (LEDR[8]       ),
     .addr           ( addr           ),
     .ack            ( ack            ),
     .bus_enable     ( bus_enable     ),
@@ -258,7 +258,6 @@ hog_de1_wrapper#(
     .switch_out_pio ( switch_out_pio ),
     .input_pixels_pio  ( input_pixels_pio  )
 );
-
 
 
 hps0 hps_block (
@@ -329,10 +328,10 @@ hps0 hps_block (
 		.bridge_0_write_data   ( write_data     ),  //          .write_data
 		.bridge_0_read_data    ( read_data      ),   //          .read_data
 
-		.hog_in_export         ( hog_in_pio       ), //      hog_in.export
-		.hog_out_export        ( hog_out_pio      ), //     hog_out.export
-		.switch_out_export     ( switch_out_pio   ), //  switch_out.export
-		.input_pixel_export    ( input_pixels_pio )  // input_pixel.export
+		// .hog_in_export         ( hog_in_pio       ), //      hog_in.export
+		// .hog_out_export        ( hog_out_pio      ), //     hog_out.export
+		// .switch_out_export     ( switch_out_pio   ), //  switch_out.export
+		// .input_pixel_export    ( input_pixels_pio )  // input_pixel.export
 
 	);
 
